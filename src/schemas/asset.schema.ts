@@ -1,6 +1,25 @@
 import { z, generateSchema } from '@/common/zod.js';
-import { off } from 'process';
-import { nullable } from 'zod';
+
+export const getAssetsSchema = z.object({
+    offset: z
+        .preprocess((val) => {
+            if (typeof val === 'string') return parseInt(val, 10);
+            return val;
+        }, z.number().min(0).default(0))
+        .openapi({
+            description: '페이징 오프셋',
+            example: 0,
+        }),
+    limit: z
+        .preprocess((val) => {
+            if (typeof val === 'string') return parseInt(val, 10);
+            return val;
+        }, z.number().min(1).max(100).default(20))
+        .openapi({
+            description: '페이징 제한',
+            example: 20,
+        }),
+});
 
 export const assetSchema = z
     .object({
@@ -55,8 +74,21 @@ export const assetListSchema = z
     })
     .openapi({ description: '자산 목록 응답 스키마' });
 
+export const createAssetSchema = z.object({
+    title: z.string().min(1).max(25).openapi({
+        description: '자산 제목',
+        example: 'Sample Asset',
+    }),
+    description: z.string().optional().nullable().openapi({
+        description: '자산 설명',
+        example: 'This is a sample asset description.',
+    }),
+});
+
+export const getAssetsJson = generateSchema(getAssetsSchema);
 export const assetJson = generateSchema(assetSchema);
 export const assetListJson = generateSchema(assetListSchema);
+export const createAssetJson = generateSchema(createAssetSchema);
 
 export type AssetType = z.infer<typeof assetSchema>;
 export type AssetListType = z.infer<typeof assetListSchema>;

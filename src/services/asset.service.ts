@@ -1,5 +1,8 @@
+import { createStorageAdapter } from '@/adapters/storage';
 import { NotFoundError } from '@/common/error.js';
 import { AssetListType, AssetType } from '@/schemas/asset.schema.js';
+import { UploadedFileInfo, UploadType } from '@/types/file.types.js';
+import { FileManager } from '@/utils/fileManager.js';
 import { PrismaClient } from '@prisma/client';
 
 export class assetService {
@@ -14,6 +17,11 @@ export class assetService {
             }),
             this.prisma.assets_tb.count(),
         ]);
+
+        if (assets.length === 0) {
+            throw new NotFoundError('에셋이 없습니다.');
+        }
+
         return {
             assets: assets.map((asset) => ({
                 id: asset.id,
@@ -61,5 +69,74 @@ export class assetService {
                     : asset.created_at,
             thumbnail_path: asset.thumbnail_path || null,
         };
+    }
+
+    async deleteAsset(id: number): Promise<void> {
+        const asset = await this.prisma.assets_tb.findUnique({
+            where: { id },
+        });
+        if (!asset) {
+            throw new NotFoundError('에셋이 없습니다.');
+        }
+        await this.prisma.assets_tb.delete({
+            where: { id },
+        });
+        if (asset.file_path) {
+            const fileManager = new FileManager(createStorageAdapter());
+            await fileManager.deleteFolder(UploadType.ASSET, id);
+        }
+    }
+
+    async createAssetsBulk(
+        assetData: Array<{
+            file: UploadedFileInfo;
+            title: string;
+            description?: string;
+        }>
+    ): Promise<void> {
+        const createdIds: number[] = [];
+
+        try {
+            for (const item of assetData) {
+                const asset = await this.prisma.assets_tb.create({
+                    data: {
+                        title: item.title,
+                        description: item.description || null,
+                    },
+                });
+
+                createdIds.push(asset.id);
+
+                const fileManager = new FileManager(createStorageAdapter());
+                const savedFiles = await fileManager.savefiles(
+                    [item.file],
+                    UploadType.ASSET,
+                    asset.id
+                );
+                const savedFile = savedFiles[0];
+
+                if (!savedFile) {
+                    throw new Error('파일 저장에 실패하였습니다.');
+                }
+
+                await this.prisma.assets_tb.update({
+                    where: { id: asset.id },
+                    data: {
+                        file_path: savedFile.filePath,
+                        file_type: savedFile.mimeType,
+                        file_size: savedFile.size,
+                    },
+                });
+            }
+        } catch (error) {
+            for (const id of createdIds) {
+                await this.prisma.assets_tb
+                    .delete({
+                        where: { id },
+                    })
+                    .catch(() => {});
+            }
+            throw error;
+        }
     }
 }

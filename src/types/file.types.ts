@@ -4,10 +4,7 @@ export interface MultiFileWithBuffer extends MultipartFile {
     buffer: Buffer;
 }
 export enum UploadType {
-    AVATAR = 'AVATAR',
-    POSTER = 'POSTER',
-    CLUB_REVIEW = 'CLUB_REVIEW',
-    CLUB = 'CLUB',
+    ASSET = 'ASSET',
 }
 
 export interface UploadConfig {
@@ -35,28 +32,10 @@ export interface SavedFileInfo {
 }
 
 export const UPLOAD_CONFIGS: Record<UploadType, UploadConfig> = {
-    [UploadType.AVATAR]: {
-        type: UploadType.AVATAR,
+    [UploadType.ASSET]: {
+        type: UploadType.ASSET,
         minFiles: 1,
         maxFiles: 1,
-        folderName: 'avatar',
-    },
-    [UploadType.POSTER]: {
-        type: UploadType.POSTER,
-        minFiles: 1,
-        maxFiles: 5,
-        folderName: 'poster',
-    },
-    [UploadType.CLUB_REVIEW]: {
-        type: UploadType.CLUB_REVIEW,
-        minFiles: 1,
-        maxFiles: 3,
-        folderName: 'review',
-    },
-    [UploadType.CLUB]: {
-        type: UploadType.CLUB,
-        minFiles: 1,
-        maxFiles: 5,
-        folderName: 'club',
+        folderName: 'asset',
     },
 };

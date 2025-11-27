@@ -1,0 +1,26 @@
+node_modules
+# Keep environment variables out of version control
+.env
+.env.*
+    
+/generated/prisma
+
+# Yarn Berry
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+# prisma build files 
+prisma/*
+!prisma/schema.prisma
+
+# Build
+dist
+build
+
+# assets folder
+images/*
+uploads/*

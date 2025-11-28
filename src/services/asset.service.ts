@@ -1,4 +1,4 @@
-import { createStorageAdapter } from '@/adapters/storage';
+import { createStorageAdapter } from '@/adapters/storage/index.js';
 import { NotFoundError } from '@/common/error.js';
 import { AssetListType, AssetType } from '@/schemas/asset.schema.js';
 import { UploadedFileInfo, UploadType } from '@/types/file.types.js';

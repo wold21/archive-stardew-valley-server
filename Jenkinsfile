@@ -3,10 +3,10 @@ pipeline {
 
     environment {
         NODE_VERSION = '20'
-        REMOTE_USER  = 'litup'
+        REMOTE_USER  = 'seohae'
         REMOTE_SERVER = '220.93.50.45'
         REMOTE_PORT  = '4342'
-        REMOTE_PATH  = '/Users/litup/workspace/litup/dockers/server-admin'
+        REMOTE_PATH  = '/Users/seohae/workspace/archive-stardew-velley/dockers/server'
         APP_PATH     = "${REMOTE_PATH}/app"
     }
 
@@ -15,7 +15,7 @@ pipeline {
             steps {
                 git credentialsId: 'backend_credential', 
                     branch: 'main', 
-                    url: 'https://github.com/litup-dev/server-admin.git'
+                    url: 'https://github.com/wold21/archive-stardew-valley-server.git'
             }
         }
 

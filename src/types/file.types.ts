@@ -36,6 +36,6 @@ export const UPLOAD_CONFIGS: Record<UploadType, UploadConfig> = {
         type: UploadType.ASSET,
         minFiles: 1,
         maxFiles: 1,
-        folderName: 'asset',
+        folderName: 'assets',
     },
 };

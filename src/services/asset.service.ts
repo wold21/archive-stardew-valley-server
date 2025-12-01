@@ -8,6 +8,13 @@ import { PrismaClient } from '@prisma/client';
 export class assetService {
     constructor(private prisma: PrismaClient) {}
 
+    private getFileType(mimeType: string): string {
+        if (mimeType.startsWith('image/')) return 'image';
+        if (mimeType.startsWith('video/')) return 'video';
+        if (mimeType.startsWith('audio/')) return 'audio';
+        return 'other';
+    }
+
     async getAssets(offset: number, limit: number): Promise<any> {
         const [assets, total] = await Promise.all([
             this.prisma.assets_tb.findMany({
@@ -119,8 +126,9 @@ export class assetService {
                     where: { id: asset.id },
                     data: {
                         file_path: savedFile.filePath,
-                        file_type: savedFile.mimeType,
+                        file_type: this.getFileType(savedFile.mimeType),
                         file_size: savedFile.size,
+                        original_name: savedFile.originalName,
                     },
                 });
             }

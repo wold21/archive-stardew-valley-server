@@ -82,10 +82,11 @@ export async function assetRoutes(fastify: FastifyInstance) {
                         buffer,
                     });
                 } else {
-                    if (part.fieldname === 'titles') {
+                    // 단수형(title, description)과 복수형(titles, descriptions) 모두 지원
+                    if (part.fieldname === 'title' || part.fieldname === 'titles') {
                         titles.push(part.value as string);
                     }
-                    if (part.fieldname === 'descriptions') {
+                    if (part.fieldname === 'description' || part.fieldname === 'descriptions') {
                         descriptions.push(part.value as string);
                     }
                 }
@@ -115,8 +116,11 @@ export async function assetRoutes(fastify: FastifyInstance) {
             await service.createAssetsBulk(assetData);
 
             return reply.status(201).send({
-                operation: 'created',
-                message: '에셋이 성공적으로 생성되었습니다.',
+                data: {
+                    success: true,
+                    operation: 'created',
+                    message: '에셋이 성공적으로 생성되었습니다.',
+                },
             });
         }
     );

@@ -1,6 +1,6 @@
 import { createStorageAdapter } from '@/adapters/storage/index.js';
 import { NotFoundError } from '@/common/error.js';
-import { AssetListType, AssetType } from '@/schemas/asset.schema.js';
+import { AssetType } from '@/schemas/asset.schema.js';
 import { UploadedFileInfo, UploadType } from '@/types/file.types.js';
 import { FileManager } from '@/utils/fileManager.js';
 import { PrismaClient } from '@prisma/client';
@@ -8,7 +8,7 @@ import { PrismaClient } from '@prisma/client';
 export class assetService {
     constructor(private prisma: PrismaClient) {}
 
-    async getAssets(offset: number, limit: number): Promise<AssetListType> {
+    async getAssets(offset: number, limit: number): Promise<any> {
         const [assets, total] = await Promise.all([
             this.prisma.assets_tb.findMany({
                 skip: offset,
@@ -19,7 +19,7 @@ export class assetService {
         ]);
 
         return {
-            assets: assets.map((asset) => ({
+            items: assets.map((asset) => ({
                 id: asset.id,
                 title: asset.title,
                 description: asset.description || null,

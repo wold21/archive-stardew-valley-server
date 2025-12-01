@@ -1,4 +1,5 @@
 import { z, generateSchema } from '@/common/zod.js';
+import { successResponseSchema, paginatedResponseSchema } from './common.schema.js';
 
 export const getAssetsSchema = z.object({
     offset: z
@@ -54,26 +55,6 @@ export const assetSchema = z
     })
     .openapi({ description: '자산 스키마' });
 
-export const assetListSchema = z
-    .object({
-        assets: z.array(assetSchema).openapi({
-            description: '자산 목록',
-        }),
-        total: z.number().int().nonnegative().openapi({
-            description: '총 자산 수',
-            example: 100,
-        }),
-        offset: z.number().int().nonnegative().openapi({
-            description: '페이징 오프셋',
-            example: 0,
-        }),
-        limit: z.number().int().positive().openapi({
-            description: '페이징 제한',
-            example: 20,
-        }),
-    })
-    .openapi({ description: '자산 목록 응답 스키마' });
-
 export const createAssetSchema = z.object({
     title: z.string().min(1).max(25).openapi({
         description: '자산 제목',
@@ -85,10 +66,13 @@ export const createAssetSchema = z.object({
     }),
 });
 
+export const assetListResponseSchema = paginatedResponseSchema(assetSchema);
+export const assetResponseSchema = successResponseSchema(assetSchema);
+
 export const getAssetsJson = generateSchema(getAssetsSchema);
-export const assetJson = generateSchema(assetSchema);
-export const assetListJson = generateSchema(assetListSchema);
+export const assetJson = generateSchema(assetResponseSchema);
+export const assetListJson = generateSchema(assetListResponseSchema);
 export const createAssetJson = generateSchema(createAssetSchema);
 
 export type AssetType = z.infer<typeof assetSchema>;
-export type AssetListType = z.infer<typeof assetListSchema>;
+export type getAssetsType = z.infer<typeof assetListResponseSchema>;

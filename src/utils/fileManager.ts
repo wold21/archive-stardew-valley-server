@@ -98,6 +98,7 @@ export class FileManager {
         if (isExist) {
             await this.storage.deleteFolder(folderPath);
         }
+        console.log(`Existing folder deleted: ${folderPath}`);
 
         // 파일 저장
         const savedFiles: SavedFileInfo[] = [];
@@ -121,6 +122,7 @@ export class FileManager {
                 throw new Error(`파일 저장에 실패하였습니다: ${error.message}`);
             }
         }
+        console.log(`Files saved: ${savedFiles.map((f) => f.filePath).join(', ')}`);
         return savedFiles;
     }
 

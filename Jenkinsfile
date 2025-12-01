@@ -13,6 +13,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                sh 'git config --global --add safe.directory /var/jenkins_home/workspace/server || true'
+                
+                deleteDir()
+                
                 git credentialsId: 'backend_credential', 
                     branch: 'main', 
                     url: 'https://github.com/wold21/archive-stardew-valley-server.git'
@@ -31,21 +35,22 @@ pipeline {
         stage('Transfer, Backup & Deploy') {
             steps {
                 script {
-                    sh """
-                        echo "🚀 전송 시작: dist 폴더"
-                        scp -P ${REMOTE_PORT} \
-                            -o StrictHostKeyChecking=no \
-                            -r dist ${REMOTE_USER}@${REMOTE_SERVER}:${APP_PATH}/dist_new
+                    sshagent(credentials: ['seohae-macmini']) {
+                        sh """
+                            echo "🚀 전송 시작: dist 폴더"
+                            scp -P ${REMOTE_PORT} \
+                                -o StrictHostKeyChecking=no \
+                                -r dist ${REMOTE_USER}@${REMOTE_SERVER}:${APP_PATH}/dist_new
 
-                        scp -P ${REMOTE_PORT} \
-                            -o StrictHostKeyChecking=no \
-                            -r package.json .yarnrc.yml yarn.lock prisma \
-                            ${REMOTE_USER}@${REMOTE_SERVER}:${APP_PATH}/
+                            scp -P ${REMOTE_PORT} \
+                                -o StrictHostKeyChecking=no \
+                                -r package.json .yarnrc.yml yarn.lock prisma \
+                                ${REMOTE_USER}@${REMOTE_SERVER}:${APP_PATH}/
 
-                        echo "📦 원격 서버에서 배포 및 백업 진행"
-                        ssh -p ${REMOTE_PORT} \
-                            -o StrictHostKeyChecking=no \
-                            ${REMOTE_USER}@${REMOTE_SERVER} 'bash -s' <<'DEPLOY'
+                            echo "📦 원격 서버에서 배포 및 백업 진행"
+                            ssh -p ${REMOTE_PORT} \
+                                -o StrictHostKeyChecking=no \
+                                ${REMOTE_USER}@${REMOTE_SERVER} 'bash -l -c "bash -s"' <<'DEPLOY'
 
 set -e
 cd ${APP_PATH}
@@ -70,12 +75,13 @@ echo "✅ 새 dist 배포 완료"
 
 # Docker 컨테이너 재시작
 echo "🔄 Docker 컨테이너 재시작"
-/usr/local/bin/docker compose down
-/usr/local/bin/docker compose up -d --build
+/Users/seohae/homebrew/bin/docker-compose down
+/Users/seohae/homebrew/bin/docker-compose up -d --build
 echo "✅ Docker 컨테이너 재시작 완료"
 
 DEPLOY
-                    """
+                        """
+                    }
                 }
             }
         }

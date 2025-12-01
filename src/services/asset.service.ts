@@ -18,15 +18,6 @@ export class assetService {
             this.prisma.assets_tb.count(),
         ]);
 
-        if (assets.length === 0) {
-            return {
-                assets: [],
-                total: 0,
-                offset,
-                limit,
-            };
-        }
-
         return {
             assets: assets.map((asset) => ({
                 id: asset.id,

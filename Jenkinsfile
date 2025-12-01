@@ -75,8 +75,8 @@ echo "✅ 새 dist 배포 완료"
 
 # Docker 컨테이너 재시작
 echo "🔄 Docker 컨테이너 재시작"
-/Users/seohae/homebrew/bin/docker-compose down
-/Users/seohae/homebrew/bin/docker-compose up -d --build
+/Users/seohae/homebrew/.brew/bin/docker-compose down
+/Users/seohae/homebrew/.brew/bin/docker-compose up -d --build
 echo "✅ Docker 컨테이너 재시작 완료"
 
 DEPLOY

@@ -15,7 +15,7 @@ export class FileManager {
         this.allowedMimeTypes = process.env.ALLOWED_IMAGE_MIME
             ? process.env.ALLOWED_IMAGE_MIME.split(',')
             : ['image/png', 'image/jpeg', 'image/webp'];
-        this.maxFileSize = parseInt(process.env.MAX_FILE_SIZE || '5242880');
+        this.maxFileSize = parseInt(process.env.MAX_UPLOAD_SIZE_BYTES || '5242880');
     }
 
     /**

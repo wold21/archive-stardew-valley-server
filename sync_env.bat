@@ -3,7 +3,7 @@ setlocal
 
 set REMOTE_USER=seohae
 set REMOTE_HOST=220.93.50.45
-set REMOTE_PATH=/Users/seohae/workspace/archive-stardew-velley-server/app
+set REMOTE_PATH=/Users/seohae/workspace/archive-stardew-velley/dockers/server/app
 set REMOTE_PORT=4342
 
 echo 🚀 Sending .env file to %REMOTE_USER%@%REMOTE_HOST%:%REMOTE_PATH%

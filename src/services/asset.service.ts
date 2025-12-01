@@ -19,7 +19,12 @@ export class assetService {
         ]);
 
         if (assets.length === 0) {
-            throw new NotFoundError('에셋이 없습니다.');
+            return {
+                assets: [],
+                total: 0,
+                offset,
+                limit,
+            };
         }
 
         return {

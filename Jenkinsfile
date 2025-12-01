@@ -13,11 +13,11 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                sh 'git config --global --add safe.directory /var/jenkins_home/workspace/server || true'
+                sh 'git config --global --add safe.directory /var/jenkins_home/workspace/archive-stardew-valley-server || true'
                 
                 deleteDir()
                 
-                git credentialsId: 'backend_credential', 
+                git credentialsId: 'c7de6d60-2443-46dd-9f10-f5447a87be99', 
                     branch: 'main', 
                     url: 'https://github.com/wold21/archive-stardew-valley-server.git'
             }

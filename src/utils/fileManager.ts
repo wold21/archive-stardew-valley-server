@@ -191,7 +191,7 @@ export class FileManager {
 
         try {
             const savedVideoPath = await this.storage.save(buffer, tempVideoPath);
-            const metadata = (await this.getVideoMetadata(tempVideoPath)) as Ffmpeg.FfprobeData;
+            const metadata = (await this.getVideoMetadata(savedVideoPath)) as Ffmpeg.FfprobeData;
             const videoStream = metadata.streams.find((s) => s.codec_type === 'video');
 
             if (!videoStream) {

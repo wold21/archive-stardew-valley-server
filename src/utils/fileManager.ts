@@ -163,7 +163,7 @@ export class FileManager {
 
     private async createImageThumbnail(buffer: Buffer, thumbnailPath: string): Promise<void> {
         try {
-            const thumbnailBuffer = await sharp(buffer).webp({ quality: 30 }).toBuffer();
+            const thumbnailBuffer = await sharp(buffer).rotate().webp({ quality: 30 }).toBuffer();
             await this.storage.save(thumbnailBuffer, thumbnailPath);
         } catch (error) {
             throw new Error(`이미지 썸네일 생성에 실패하였습니다: ${error}`);

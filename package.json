@@ -21,6 +21,7 @@
     "description": "",
     "devDependencies": {
         "@eslint/js": "9.35.0",
+        "@types/fluent-ffmpeg": "2.1.28",
         "@types/node": "24.6.2",
         "@typescript-eslint/eslint-plugin": "8.45.0",
         "@typescript-eslint/parser": "8.45.0",
@@ -52,12 +53,16 @@
         "@fastify/static": "8.2.0",
         "@fastify/swagger": "9.5.1",
         "@fastify/swagger-ui": "5.2.3",
+        "@ffmpeg-installer/ffmpeg": "^1.1.0",
+        "@ffprobe-installer/ffprobe": "^2.1.2",
         "@prisma/client": "6.16.2",
         "dotenv": "17.2.3",
         "fastify": "5.6.0",
+        "fluent-ffmpeg": "2.1.3",
         "moment": "2.30.1",
         "node-cron": "4.2.1",
         "pino": "9.12.0",
+        "sharp": "0.34.5",
         "zod": "3.25.76"
     },
     "packageManager": "yarn@4.10.3"

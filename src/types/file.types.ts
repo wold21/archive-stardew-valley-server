@@ -28,6 +28,7 @@ export interface SavedFileInfo {
     filePath: string;
     size: number;
     mimeType: string;
+    thumbnailPath?: string;
     order?: number;
 }
 

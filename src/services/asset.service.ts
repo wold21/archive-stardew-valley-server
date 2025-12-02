@@ -11,7 +11,6 @@ export class assetService {
     private getFileType(mimeType: string): string {
         if (mimeType.startsWith('image/')) return 'image';
         if (mimeType.startsWith('video/')) return 'video';
-        if (mimeType.startsWith('audio/')) return 'audio';
         return 'other';
     }
 
@@ -129,6 +128,7 @@ export class assetService {
                         file_type: this.getFileType(savedFile.mimeType),
                         file_size: savedFile.size,
                         original_name: savedFile.originalName,
+                        thumbnail_path: savedFile.thumbnailPath || null,
                     },
                 });
             }

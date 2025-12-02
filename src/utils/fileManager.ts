@@ -4,6 +4,10 @@ import { SavedFileInfo, UPLOAD_CONFIGS, UploadedFileInfo, UploadType } from '@/t
 import { randomUUID } from 'crypto';
 import path from 'path';
 import { getCompactKoreaTimestamp } from './time.js';
+import sharp from 'sharp';
+import Ffmpeg from 'fluent-ffmpeg';
+import ffmpegPath from '@ffmpeg-installer/ffmpeg';
+import ffprobePath from '@ffprobe-installer/ffprobe';
 
 export class FileManager {
     private storage: IStorageAdapter;
@@ -14,8 +18,10 @@ export class FileManager {
         this.storage = storage;
         this.allowedMimeTypes = process.env.ALLOWED_IMAGE_MIME
             ? process.env.ALLOWED_IMAGE_MIME.split(',')
-            : ['image/png', 'image/jpeg', 'image/webp'];
-        this.maxFileSize = parseInt(process.env.MAX_UPLOAD_SIZE_BYTES || '5242880');
+            : ['image/png', 'image/jpeg', 'image/webp', 'video/mp4'];
+        this.maxFileSize = parseInt(process.env.MAX_UPLOAD_SIZE_BYTES || '104857600');
+        Ffmpeg.setFfmpegPath(ffmpegPath.path);
+        Ffmpeg.setFfprobePath(ffprobePath.path);
     }
 
     /**
@@ -98,14 +104,22 @@ export class FileManager {
         if (isExist) {
             await this.storage.deleteFolder(folderPath);
         }
-        console.log(`Existing folder deleted: ${folderPath}`);
 
         // 파일 저장
         const savedFiles: SavedFileInfo[] = [];
         for (let i = 0; i < files.length; i++) {
             const file = files[i]!;
             const storedName = this.generateFileName(file.fileName);
+            const fileType = this.getFileType(file.mimeType);
             const filePath = `${folderPath}/${storedName}`;
+
+            // 썸네일 작업
+            const thumbnailPath = `${folderPath}/thumbnails/${storedName.replace(/\.[^/.]+$/, '.webp')}`;
+            if (fileType === 'image') {
+                await this.createImageThumbnail(file.buffer, thumbnailPath);
+            } else if (fileType === 'video') {
+                await this.createVideoThumbnail(file.buffer, thumbnailPath);
+            }
 
             try {
                 await this.storage.save(file.buffer, filePath);
@@ -115,6 +129,7 @@ export class FileManager {
                     filePath,
                     size: file.size,
                     mimeType: file.mimeType,
+                    thumbnailPath: thumbnailPath,
                     order: i,
                 });
             } catch (error: any) {
@@ -122,7 +137,6 @@ export class FileManager {
                 throw new Error(`파일 저장에 실패하였습니다: ${error.message}`);
             }
         }
-        console.log(`Files saved: ${savedFiles.map((f) => f.filePath).join(', ')}`);
         return savedFiles;
     }
 
@@ -139,5 +153,67 @@ export class FileManager {
     async deleteFolder(type: UploadType, entityId: number | string): Promise<void> {
         const folderPath = this.getUploadPath(type, entityId);
         await this.storage.deleteFolder(folderPath);
+    }
+
+    private getFileType(mimeType: string): string {
+        if (mimeType.startsWith('image/')) return 'image';
+        if (mimeType.startsWith('video/')) return 'video';
+        return 'other';
+    }
+
+    private async createImageThumbnail(buffer: Buffer, thumbnailPath: string): Promise<void> {
+        try {
+            const thumbnailBuffer = await sharp(buffer).webp({ quality: 30 }).toBuffer();
+            await this.storage.save(thumbnailBuffer, thumbnailPath);
+        } catch (error) {
+            throw new Error(`이미지 썸네일 생성에 실패하였습니다: ${error}`);
+        }
+    }
+
+    private async getVideoMetadata(filePath: string): Promise<Ffmpeg.FfprobeData> {
+        console.log('메타데이터 생성');
+        return new Promise((resolve, reject) => {
+            Ffmpeg.ffprobe(filePath, (err, metadata) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(metadata);
+                }
+            });
+            console.log('메타데이터 생성 완료' + filePath);
+        });
+    }
+
+    private async createVideoThumbnail(buffer: Buffer, thumbnailPath: string): Promise<void> {
+        const timestamp = Date.now();
+        const tempVideoPath = `temp_video_${timestamp}.mp4`;
+        const tempThumbPath = `temp_thumb_${timestamp}.png`;
+
+        try {
+            await this.storage.save(buffer, tempVideoPath);
+            const metadata = (await this.getVideoMetadata(tempVideoPath)) as Ffmpeg.FfprobeData;
+            const videoStream = metadata.streams.find((s) => s.codec_type === 'video');
+
+            if (!videoStream) {
+                throw new Error('비디오 스트림을 찾을 수 없습니다.');
+            }
+
+            await new Promise<void>((resolve, reject) => {
+                Ffmpeg(tempVideoPath)
+                    .screenshots({
+                        timestamps: ['50%'],
+                        filename: tempThumbPath,
+                    })
+                    .on('end', () => resolve())
+                    .on('error', (err) => reject(err));
+            });
+            const thumbnailBuffer = await sharp(tempThumbPath).webp({ quality: 30 }).toBuffer();
+            await this.storage.save(thumbnailBuffer, thumbnailPath);
+        } catch (error) {
+            throw new Error(`비디오 썸네일 생성에 실패하였습니다: ${error}`);
+        } finally {
+            await this.storage.delete(tempVideoPath);
+            await this.storage.delete(tempThumbPath);
+        }
     }
 }

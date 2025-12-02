@@ -15,6 +15,7 @@ export class LocalStorageAdapter implements IStorageAdapter {
 
         await fstat.mkdir(dirPath, { recursive: true });
         await fstat.writeFile(fullPath, buffer);
+        console.log(`File saved: ${fullPath}`);
         return fullPath;
     }
 

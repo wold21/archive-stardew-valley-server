@@ -190,7 +190,7 @@ export class FileManager {
         const tempThumbPath = `temp_thumb_${timestamp}.png`;
 
         try {
-            await this.storage.save(buffer, tempVideoPath);
+            const savedVideoPath = await this.storage.save(buffer, tempVideoPath);
             const metadata = (await this.getVideoMetadata(tempVideoPath)) as Ffmpeg.FfprobeData;
             const videoStream = metadata.streams.find((s) => s.codec_type === 'video');
 
@@ -199,15 +199,21 @@ export class FileManager {
             }
 
             await new Promise<void>((resolve, reject) => {
-                Ffmpeg(tempVideoPath)
+                Ffmpeg(savedVideoPath)
                     .screenshots({
                         timestamps: ['50%'],
                         filename: tempThumbPath,
+                        folder: path.dirname(savedVideoPath),
                     })
                     .on('end', () => resolve())
                     .on('error', (err) => reject(err));
             });
-            const thumbnailBuffer = await sharp(tempThumbPath).webp({ quality: 30 }).toBuffer();
+            const fullThumbPath = path.join(
+                path.dirname(savedVideoPath),
+                `temp_thumb_${timestamp}.png`
+            );
+            const thumbnailBuffer = await sharp(fullThumbPath).webp({ quality: 30 }).toBuffer();
+
             await this.storage.save(thumbnailBuffer, thumbnailPath);
         } catch (error) {
             throw new Error(`비디오 썸네일 생성에 실패하였습니다: ${error}`);

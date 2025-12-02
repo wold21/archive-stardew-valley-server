@@ -29,13 +29,13 @@ export class assetService {
                 id: asset.id,
                 title: asset.title,
                 description: asset.description || null,
-                file_path: asset.file_path || null,
-                file_type: asset.file_type || null,
-                created_at:
+                filePath: asset.file_path || null,
+                fileType: asset.file_type || null,
+                createdAt:
                     asset.created_at instanceof Date
                         ? asset.created_at.toISOString()
                         : asset.created_at,
-                thumbnail_path: asset.thumbnail_path || null,
+                thumbnailPath: asset.thumbnail_path || null,
             })),
             total,
             offset,
@@ -63,13 +63,13 @@ export class assetService {
             id: asset.id,
             title: asset.title,
             description: asset.description || null,
-            file_path: asset.file_path || null,
-            file_type: asset.file_type || null,
-            created_at:
+            filePath: asset.file_path || null,
+            fileType: asset.file_type || null,
+            createdAt:
                 asset.created_at instanceof Date
                     ? asset.created_at.toISOString()
                     : asset.created_at,
-            thumbnail_path: asset.thumbnail_path || null,
+            thumbnailPath: asset.thumbnail_path || null,
         };
     }
 

@@ -36,19 +36,19 @@ export const assetSchema = z
             description: '자산 설명',
             example: 'This is a sample asset description.',
         }),
-        file_path: z.string().optional().nullable().openapi({
+        filePath: z.string().optional().nullable().openapi({
             description: '파일 경로',
             example: '/uploads/sample-asset.png',
         }),
-        file_type: z.string().optional().nullable().openapi({
+        fileType: z.string().optional().nullable().openapi({
             description: '파일 유형',
             example: 'image',
         }),
-        created_at: z.string().openapi({
+        createdAt: z.string().openapi({
             description: '생성 일시',
             example: '2024-01-01T12:00:00Z',
         }),
-        thumbnail_path: z.string().optional().nullable().openapi({
+        thumbnailPath: z.string().optional().nullable().openapi({
             description: '썸네일 경로',
             example: '/uploads/thumbnails/sample-asset-thumb.png',
         }),

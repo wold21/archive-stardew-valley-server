@@ -175,4 +175,40 @@ export async function assetRoutes(fastify: FastifyInstance) {
             });
         }
     );
+
+    fastify.delete(
+        '/assets/:entityId',
+        {
+            schema: {
+                tags: ['Asset'],
+                summary: '에셋 삭제',
+                params: idParamJson,
+                response: {
+                    200: successResJson,
+                    400: errorResJson,
+                    500: errorResJson,
+                },
+            },
+        },
+        async (request, reply) => {
+            const parsedParams = idParamSchema.safeParse(request.params);
+            if (!parsedParams.success) {
+                throw new BadRequestError(
+                    `허용되지 않은 파라미터입니다. ${parsedParams.error.message}`
+                );
+            }
+
+            const { entityId } = parsedParams.data;
+
+            await service.deleteAsset(entityId);
+
+            return reply.send({
+                data: {
+                    success: true,
+                    operation: 'deleted',
+                    message: '에셋이 성공적으로 삭제되었습니다.',
+                },
+            });
+        }
+    );
 }

@@ -143,4 +143,33 @@ export class assetService {
             throw error;
         }
     }
+
+    async updateAsset(
+        id: number,
+        data: { title: string; description?: string }
+    ): Promise<AssetType> {
+        const asset = await this.prisma.assets_tb.findUnique({
+            where: { id },
+        });
+        if (!asset) {
+            throw new NotFoundError('에셋이 없습니다.');
+        }
+
+        const updatedAsset = await this.prisma.assets_tb.update({
+            where: { id },
+            data,
+        });
+        return {
+            id: updatedAsset.id,
+            title: updatedAsset.title,
+            description: updatedAsset.description || null,
+            filePath: updatedAsset.file_path || null,
+            fileType: updatedAsset.file_type || null,
+            createdAt:
+                updatedAsset.created_at instanceof Date
+                    ? updatedAsset.created_at.toISOString()
+                    : updatedAsset.created_at,
+            thumbnailPath: updatedAsset.thumbnail_path || null,
+        };
+    }
 }

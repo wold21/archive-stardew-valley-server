@@ -1,6 +1,18 @@
 import { BadRequestError } from '@/common/error.js';
-import { assetJson, assetListJson, getAssetsJson } from '@/schemas/asset.schema.js';
-import { errorResJson, idParamJson, IdParamType, successResJson } from '@/schemas/common.schema.js';
+import {
+    assetJson,
+    assetListJson,
+    assetResponseSchema,
+    getAssetsJson,
+    modifyAssetJson,
+} from '@/schemas/asset.schema.js';
+import {
+    errorResJson,
+    idParamJson,
+    idParamSchema,
+    IdParamType,
+    successResJson,
+} from '@/schemas/common.schema.js';
 import { assetService } from '@/services/asset.service.js';
 import { UploadedFileInfo } from '@/types/file.types.js';
 import { FastifyInstance } from 'fastify';
@@ -44,7 +56,12 @@ export async function assetRoutes(fastify: FastifyInstance) {
             },
         },
         async (request, reply) => {
-            const { entityId } = request.params as IdParamType;
+            const parsed = idParamSchema.safeParse(request.params);
+            if (!parsed.success) {
+                throw new BadRequestError(`허용되지 않은 파라미터입니다. ${parsed.error.message}`);
+            }
+
+            const { entityId } = parsed.data;
             const assets = await service.getAsset(entityId);
             return reply.send({ data: assets });
         }
@@ -121,6 +138,40 @@ export async function assetRoutes(fastify: FastifyInstance) {
                     operation: 'created',
                     message: '에셋이 성공적으로 생성되었습니다.',
                 },
+            });
+        }
+    );
+
+    fastify.post(
+        '/assets/:entityId',
+        {
+            schema: {
+                tags: ['Asset'],
+                summary: '에셋 수정',
+                body: modifyAssetJson,
+                params: idParamJson,
+                response: {
+                    200: assetJson,
+                    400: errorResJson,
+                    500: errorResJson,
+                },
+            },
+        },
+        async (request, reply) => {
+            const parsedParams = idParamSchema.safeParse(request.params);
+            if (!parsedParams.success) {
+                throw new BadRequestError(
+                    `허용되지 않은 파라미터입니다. ${parsedParams.error.message}`
+                );
+            }
+
+            const { entityId } = parsedParams.data;
+            const { title, description } = request.body as any;
+
+            const results = await service.updateAsset(entityId, { title, description });
+
+            return reply.send({
+                data: results,
             });
         }
     );

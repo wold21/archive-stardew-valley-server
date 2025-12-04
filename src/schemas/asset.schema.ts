@@ -66,6 +66,11 @@ export const createAssetSchema = z.object({
     }),
 });
 
+export const updateAssetSchema = createAssetSchema.pick({
+    title: true,
+    description: true,
+});
+
 export const assetListResponseSchema = paginatedResponseSchema(assetSchema);
 export const assetResponseSchema = successResponseSchema(assetSchema);
 
@@ -73,6 +78,7 @@ export const getAssetsJson = generateSchema(getAssetsSchema);
 export const assetJson = generateSchema(assetResponseSchema);
 export const assetListJson = generateSchema(assetListResponseSchema);
 export const createAssetJson = generateSchema(createAssetSchema);
+export const modifyAssetJson = generateSchema(updateAssetSchema);
 
 export type AssetType = z.infer<typeof assetSchema>;
 export type getAssetsType = z.infer<typeof assetListResponseSchema>;

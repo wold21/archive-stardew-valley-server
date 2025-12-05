@@ -142,7 +142,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
         }
     );
 
-    fastify.post(
+    fastify.patch(
         '/assets/:entityId',
         {
             schema: {
